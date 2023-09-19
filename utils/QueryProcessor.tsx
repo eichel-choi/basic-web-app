@@ -1,67 +1,80 @@
 export default function QueryProcessor(query: string): string {
-  if (query.toLowerCase().includes("shakespeare")) {
-    return (
-      "William Shakespeare (26 April 1564 - 23 April 1616) was an " +
-      "English poet, playwright, and actor, widely regarded as the greatest " +
-      "writer in the English language and the world's pre-eminent dramatist."
-    );
+  const lowerCaseQuery = query.toLowerCase();
+
+  // Define regular expressions for different operations
+  const additionRegex = /(\d+) plus (\d+)/;
+  const subtractionRegex = /(\d+) minus (\d+)/;
+  const multiplicationRegex = /(\d+) multiplied by (\d+)/;
+  const divisionRegex = /(\d+) divided by (\d+)/;
+  const squareRegex = /square of (\d+)/;
+  const squareRootRegex = /square root of (\d+)/;
+  const powerRegex = /(\d+) to the power of (\d+)/;
+  const primesRegex = /which of the following numbers are primes: (.+)/;
+
+  // Check if the query asks for addition
+  if (additionRegex.test(lowerCaseQuery)) {
+    const [, x, y] = lowerCaseQuery.match(additionRegex);
+    return String(parseInt(x) + parseInt(y));
   }
 
-  if (query.toLowerCase().includes("andrew id")) {
-    return "sebinc";
+  // Check if the query asks for subtraction
+  if (subtractionRegex.test(lowerCaseQuery)) {
+    const [, x, y] = lowerCaseQuery.match(subtractionRegex);
+    return String(parseInt(x) - parseInt(y));
   }
 
-  if (query.toLowerCase().includes("name")) {
-    return "Sebin (Eichel) Choi";
+  // Check if the query asks for multiplication
+  if (multiplicationRegex.test(lowerCaseQuery)) {
+    const [, x, y] = lowerCaseQuery.match(multiplicationRegex);
+    return String(parseInt(x) * parseInt(y));
   }
 
-  // Check if the query asks for multiplication or addition
-  if (query.toLowerCase().includes("multiplied by")) {
-    const match = query.match(/(\d+) multiplied by (\d+)/);
-    if (match && match.length === 3) {
-      const x = parseInt(match[1]);
-      const y = parseInt(match[2]);
-      const result = x * y;
-      return `The result of ${x} multiplied by ${y} is ${result}.`;
+  // Check if the query asks for division
+  if (divisionRegex.test(lowerCaseQuery)) {
+    const [, x, y] = lowerCaseQuery.match(divisionRegex);
+    if (parseInt(y) === 0) {
+      return "Division by zero is not allowed.";
     }
+    return String(parseInt(x) / parseInt(y));
   }
 
-  if (query.toLowerCase().includes("plus")) {
-    const match = query.match(/(\d+) plus (\d+)/);
-    if (match && match.length === 3) {
-      const x = parseInt(match[1]);
-      const y = parseInt(match[2]);
-      const result = x + y;
-      return `The result of ${x} plus ${y} is ${result}.`;
-    }
+  // Check if the query asks for squaring
+  if (squareRegex.test(lowerCaseQuery)) {
+    const [, x] = lowerCaseQuery.match(squareRegex);
+    return String(Math.pow(parseInt(x), 2));
   }
 
-  // Check if the query asks for finding the largest number
-  if (query.toLowerCase().includes("largest")) {
-    const numbersMatch = query.match(/(\d+), (\d+), (\d+)/);
-    if (numbersMatch && numbersMatch.length === 4) {
-      const x = parseInt(numbersMatch[1]);
-      const y = parseInt(numbersMatch[2]);
-      const z = parseInt(numbersMatch[3]);
-      const largest = Math.max(x, y, z);
-      return `The largest number among ${x}, ${y}, and ${z} is ${largest}.`;
-    }
+  // Check if the query asks for square root
+  if (squareRootRegex.test(lowerCaseQuery)) {
+    const [, x] = lowerCaseQuery.match(squareRootRegex);
+    return String(Math.sqrt(parseInt(x)));
   }
 
-  // Check if the query asks for a square and cube number
-  if (query.toLowerCase().includes("square") && query.toLowerCase().includes("cube")) {
-    const numbersMatch = query.match(/(\d+), (\d+), (\d+), (\d+), (\d+), (\d+), (\d+)/);
-    if (numbersMatch && numbersMatch.length === 8) {
-      const numbers = numbersMatch.slice(1).map(Number);
-      const squareAndCubeNumbers = numbers.filter(num => Math.cbrt(num) === Math.sqrt(num));
-      if (squareAndCubeNumbers.length > 0) {
-        return `The numbers that are both a square and a cube are: ${squareAndCubeNumbers.join(", ")}.`;
-      } else {
-        return "None of the provided numbers are both a square and a cube.";
-      }
-    }
+  // Check if the query asks for a number raised to a power
+  if (powerRegex.test(lowerCaseQuery)) {
+    const [, base, exponent] = lowerCaseQuery.match(powerRegex);
+    return String(Math.pow(parseInt(base), parseInt(exponent)));
+  }
+
+  // Check if the query asks for prime numbers
+  if (primesRegex.test(lowerCaseQuery)) {
+    const [, numbersStr] = lowerCaseQuery.match(primesRegex);
+    const numbers = numbersStr.split(',').map(num => parseInt(num.trim()));
+    const primeNumbers = numbers.filter(isPrime);
+    return primeNumbers.join(', ');
   }
 
   // If no matching condition is found, return an empty string or a default response
   return "I'm sorry, I don't understand your query.";
+
+  // Function to check if a number is prime
+  function isPrime(num: number): boolean {
+    if (num <= 1) return false;
+    if (num <= 3) return true;
+    if (num % 2 === 0 || num % 3 === 0) return false;
+    for (let i = 5; i * i <= num; i += 6) {
+      if (num % i === 0 || num % (i + 2) === 0) return false;
+    }
+    return true;
+  }
 }
