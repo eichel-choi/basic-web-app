@@ -25,4 +25,12 @@ describe("QueryProcessor", () => {
             "sebinc"
           ));
     });
+
+    test('should return my name', () => {
+        const query = "name";
+        const response: string = QueryProcessor(query);
+        expect(response).toBe((
+            "Sebin (Eichel) Choi"
+          ));
+    });
 });
